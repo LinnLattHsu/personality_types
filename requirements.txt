@@ -4,4 +4,7 @@ numpy
 matplotlib
 seaborn
 gunicorn
+
 whitenoise
+joblib
+scikit-learn
