@@ -1,0 +1,7 @@
+django
+pandas
+numpy
+matplotlib
+seaborn
+gunicorn
+whitenoise

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <h3 class="fw-bold mb-4" style="color: #6f42c1;">Dataset Analysis</h3>
+
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="bg-light">
+                    <tr class="small text-muted text-uppercase">
+                        <th>Trait Variable</th>
+                        <th>Average (Mean)</th>
+                        <th>Standard Deviation</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in stats %}
+                    <tr>
+                        <td><strong>{{ row.trait|title }}</strong></td>
+                        <td>{{ row.mean }}</td>
+                        <td>{{ row.std }}</td>
+                        <td>{{ row.min }}</td>
+                        <td>{{ row.max }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
