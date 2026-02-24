@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    :root {
+        --primary-purple: #6f42c1;
+        --light-purple: #f8f7fd;
+        --soft-shadow: 0 10px 30px rgba(111, 66, 193, 0.05);
+    }
+
+    body { background-color: var(--light-purple); }
+    html{
+    scroll-behavior: smooth;
+    }
+
+    .main-card {
+        border-radius: 24px;
+        border: none;
+        box-shadow: var(--soft-shadow);
+        background: #ffffff;
+    }
+
+    /* Modern Glassy Trait Card */
+    .trait-card {
+        background: #ffffff;
+        border: 1px solid #eee;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        padding: 1.25rem;
+    }
+
+    .trait-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary-purple);
+        box-shadow: 0 5px 15px rgba(111, 66, 193, 0.1);
+    }
+
+    /* Custom Range Slider Styling */
+<!--    .form-range::-webkit-slider-thumb { background: var(&#45;&#45;primary-purple); }-->
+<!--    .form-range::-moz-range-thumb { background: var(&#45;&#45;primary-purple); }-->
+<!--    .form-range::-ms-thumb { background: var(&#45;&#45;primary-purple); }-->
+    /* Fix for the slider track (the line) */
+
+
+
+.form-range::-moz-range-track {
+    background-color: #e9ecef;
+    height: 0.5rem;
+    border-radius: 1rem;
+}
+
+    /* Visible Track */
+.form-range::-webkit-slider-runnable-track {
+    background: #e9ecef;
+    height: 6px;
+    border-radius: 3px;
+}
+
+/* Dynamic Thumb Color based on value (Handled by JS below) */
+.form-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--thumb-color, #6f42c1);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin-top: -6px;
+    transition: background 0.3s ease;
+}
+
+/* Category Headers */
+.category-title {
+    color: #4a5568;
+    font-size: 1.1rem;
+    border-left: 4px solid #6f42c1;
+    padding-left: 10px;
+    margin: 2rem 0 1rem 0;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #6f42c1 !important;
+    border: none;
+}
+
+    .badge-value {
+        min-width: 35px;
+        font-weight: 700;
+        background-color: var(--primary-purple) !important;
+    }
+
+    .predict-btn {
+        background: linear-gradient(135deg, #8e44ad, #6f42c1);
+        border: none;
+        padding: 15px 40px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: transform 0.2s;
+    }
+
+    .predict-btn:hover {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+
+    /* Result Cards */
+    .result-card {
+        border-radius: 18px;
+        background: #fff;
+        transition: 0.3s;
+    }
+    .trait-label {
+    display: block;
+    min-height: 2.8rem; /* This prevents the sliders from jumping up and down */
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+}
+</style>
+
+<div class="container py-5">
+    <div class="card main-card mx-auto" style="max-width: 1100px;">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="text-center mb-5">
+                <h2 class="fw-bold" style="color: var(--primary-purple);">Personality Analysis</h2>
+                <p class="text-muted">Adjust the sliders to reflect your natural tendencies (1-10)</p>
+            </div>
+                <form method="POST" action="#results-section">
+    {% csrf_token %}
+
+    {% for cat_name, traits in categories.items %}
+        {% if traits %}
+        <h5 class="category-title fw-bold mt-5 mb-3">{{ cat_name }}</h5>
+        <div class="row g-4">
+            {% for feature in traits %}
+            <div class="col-md-6 col-lg-4">
+                <div class="trait-card h-100">
+                    <label class="form-label fw-bold text-dark trait-label">{{ feature }}</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" name="{{ feature }}" class="form-range heat-slider"
+                               min="1" max="10" step="1" value="5"
+                               oninput="updateSlider(this)">
+                        <span class="badge rounded-pill badge-value shadow-sm">5</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="text-center mt-5">
+        <button type="submit" class="btn btn-primary btn-lg predict-btn shadow rounded-pill">
+            Check My Personality
+        </button>
+    </div>
+</form>
+
+
+
+            {% if proba %}
+            <div id="results-section" class="mt-5 pt-5 border-top">
+                <h3 class="fw-bold mb-4 text-center">Your Psychological Profile</h3>
+                <div class="row g-4 justify-content-center">
+                    {% for type, val in proba.items %}
+                    <div class="col-sm-6 col-md-4">
+                        <div class="result-card shadow-sm p-4 text-center border">
+                            <span class="text-uppercase ls-wide fw-bold text-muted small">{{ type }}</span>
+                            <h2 class="display-6 fw-bold my-2" style="color: var(--primary-purple);">{{ val }}%</h2>
+                            <div class="progress rounded-pill" style="height: 8px;">
+                                <div class="progress-bar opacity-75"
+                                     role="progressbar"
+                                     style="width: {{ val }}%; background-color: var(--primary-purple);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function updateSlider(slider) {
+        const val = slider.value;
+        const badge = slider.nextElementSibling;
+        badge.innerText = val;
+
+        // "Heat Map" Calculation: Teal (Low) to Purple (High)
+        const r = Math.floor(45 + (val * 15));
+        const g = Math.floor(212 - (val * 15));
+        const b = Math.floor(191 + (val * 5));
+        const color = `rgb(${r}, ${g}, ${b})`;
+
+        slider.style.setProperty('--thumb-color', color);
+        badge.style.backgroundColor = color;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Fix the labels to be pretty
+        document.querySelectorAll('.trait-label').forEach(el => {
+            el.innerText = el.innerText.replace(/_/g, ' ').toUpperCase();
+        });
+
+        // Set initial colors for all sliders
+        document.querySelectorAll('.heat-slider').forEach(s => updateSlider(s));
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+    // 1. Create a mapping of technical names to friendly questions
+    const questionMap = {
+        // Social & Engagement
+        "SOCIAL_ENERGY": "How energized do you feel after being around people?",
+        "TALKATIVENESS": "How much do you enjoy starting conversations?",
+        "GROUP_COMFORT": "How comfortable are you in large crowds?",
+        "PARTY_LIKING": "How much do you enjoy attending parties or events?",
+        "PUBLIC_SPEAKING_COMFORT": "How confident do you feel speaking in public?",
+        "FRIENDLINESS": "How easily do you make new friends?",
+        "ONLINE_SOCIAL_USAGE": "How active are you on social media platforms?",
+
+        // Mindset & Reflection
+        "DEEP_REFLECTION": "How often do you think deeply about your life and actions?",
+        "CREATIVITY": "How much do you enjoy coming up with original ideas?",
+        "CURIOSITY": "How often do you seek out new things to learn?",
+        "READING_HABIT": "How often do you spend time reading books or articles?",
+
+        // Work & Decision Making
+        "ORGANIZATION": "How structured and organized is your daily life?",
+        "LEADERSHIP": "How comfortable are you taking charge of a group?",
+        "PLANNING": "Do you prefer planning things out before you start?",
+        "WORK_STYLE_COLLABORATIVE": "Do you prefer working with a team over working alone?",
+        "DECISION_SPEED": "How quickly do you usually make decisions?",
+        "ROUTINE_PREFERENCE": "How much do you enjoy having a set daily routine?",
+
+        // Emotional Intelligence
+        "EMPATHY": "How well can you understand and share the feelings of others?",
+        "LISTENING_SKILL": "How much do you focus on listening when others talk?",
+        "EMOTIONAL_STABILITY": "How well do you stay calm during stressful situations?",
+        "STRESS_HANDLING": "How effectively do you manage high-pressure moments?",
+
+        // Lifestyle & Adventure
+        "ALONE_TIME_PREFERENCE": "How much do you value having time to yourself?",
+        "RISK_TAKING": "How willing are you to take risks for a high reward?",
+        "EXCITEMENT_SEEKING": "How often do you look for new and exciting thrills?",
+        "SPONTANEITY": "How often do you act on impulse without a plan?",
+        "ADVENTUROUSNESS": "How much do you enjoy exploring unknown places?",
+        "SPORTS_INTEREST": "How interested are you in playing or watching sports?",
+        "TRAVEL_DESIRE": "How strong is your urge to travel and see the world?",
+        "GADGET_USAGE": "How much do you rely on the latest technology and gadgets?"
+    };
+
+    // 2. Apply the mapping to the labels
+    document.querySelectorAll('.trait-label').forEach(el => {
+        // Clean the text to match our dictionary keys
+        const rawKey = el.innerText.replace(/ /g, '_').toUpperCase().trim();
+
+        if (questionMap[rawKey]) {
+            el.innerText = questionMap[rawKey];
+            el.style.fontSize = "0.9rem"; // Makes longer questions fit better
+        }
+    });
+
+    // Set initial colors for all sliders
+    document.querySelectorAll('.heat-slider').forEach(s => updateSlider(s));
+});
+</script>
+{% endblock %}
